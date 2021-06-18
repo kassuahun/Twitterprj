@@ -79,7 +79,7 @@ class MyStreamListener(tweepy.StreamListener):
             if  my_limits.followlimit():
                 if not tweet.user.following:
                     logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
-                    tweet.user.follow()
+                    #tweet.user.follow()
                     for i in range(1,len(api_List)):
                         api_List[i].create_friendship(tweet.user.id)
                     utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
@@ -90,7 +90,7 @@ class MyStreamListener(tweepy.StreamListener):
                 if utils.is_retweeted_tweet(tweet):
                     logger.info(f'Follow user {tweet.retweeted_status.user.name.encode("utf-8")}')
                     if not tweet.retweeted_status.user.following:
-                        tweet.retweeted_status.user.follow()
+                        #tweet.retweeted_status.user.follow()
                         for i in range(1,len(api_List)):
                             api_List[i].create_friendship(tweet.retweeted_status.user.id)
                         utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
