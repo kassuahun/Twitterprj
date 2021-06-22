@@ -117,5 +117,10 @@ def create_api_List():
 #     return api_list
 
 
+
+
+
 # api_list = create_api_List()
-# api = create_api()
+# lst = ["Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia","NEBEthiopia","Betty_Moges"]
+# print(utils.get_influencer_ID(api_list[0], lst))
+# # api = create_api()
