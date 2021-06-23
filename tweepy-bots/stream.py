@@ -61,6 +61,7 @@ class MyStreamListener(tweepy.StreamListener):
         try:    
             #Limit
             if my_limits.tweetlimit():
+
                 tweet.retweet()
                 self.last_tweet_time = datetime.datetime.now()
                 logger.info(f"Tweet Retweeted by {api.get_user(self.me.id).screen_name}")
@@ -80,37 +81,45 @@ class MyStreamListener(tweepy.StreamListener):
                 tweet.favorite()
                 my_limits.update_today_like()
 
-            if  my_limits.followlimit():
-                if not tweet.user.following:
+            if  my_limits.followlimit() :
+                if (not tweet.user.following) and tweet.user.followers_count < 500:
                     logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
                     tweet.user.follow()
                     for i in range(1,len(api_List)):
-                        if tweet.user.followers_count < 150:
+                        frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                        isfr = frendship[0].is_following
+                        if (not isfr) and (tweet.user.followers_count < 150):
                             api_List[i].create_friendship(tweet.user.id)
                     utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
                     logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
                     my_limits.update_today_follow()
                     logger.info(f'Update Follow limit ')
 
-                if utils.is_retweeted_tweet(tweet):
-                    logger.info(f'Follow user {tweet.retweeted_status.user.name.encode("utf-8")}')
-                    if not tweet.retweeted_status.user.following:
-                        #tweet.retweeted_status.user.follow()
-                        for i in range(1,len(api_List)):
+                if utils.is_retweeted_tweet(tweet) and (not tweet.retweeted_status.user.following) and tweet.retweeted_status.user.followers_count < 150:
+                    tweet.retweeted_status.user.follow()
+                    logger.info(f'Followed user {tweet.retweeted_status.user.name.encode("utf-8")}')
+                    
+                    for i in range(1,len(api_List)):
+                        frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                        isfr = frendship[0].is_following
+                        if (not isfr) and tweet.retweeted_status.user.id < 150:
                             api_List[i].create_friendship(tweet.retweeted_status.user.id)
-                        utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
-                        logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
-                        self.follow_counter = self.follow_counter + 1
-                        my_limits.update_today_follow()
-                        logger.info(f'Update Follow limit ')
+                    
+                    utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
+                    logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
+                    self.follow_counter = self.follow_counter + 1
+                    my_limits.update_today_follow()
+                    logger.info(f'Update Follow limit ')
 
             self.reset_limit_counters()
             self.set_tweet_id(tweet.id)
             
-            timediff = (datetime.datetime.now() - self.last_tweet_time).total_seconds()/60
-            logger.info(f"time since last tweet = ")
-            logger.info(f" waiting for {self.wait_minutes} minutes ...")
-            time.sleep(self.wait_minutes * 60)
+            timediff = int((datetime.datetime.now() - self.last_tweet_time).total_seconds()/60)
+            logger.info(f"Time since last tweet = {timediff}")
+
+            logger.info(f"Waiting for {self.wait_minutes-timediff} minutes ...")
+            if timediff < self.wait_minutes:
+                time.sleep((self.wait_minutes * 60) - timediff)
         except tweepy.TweepError as e:
             logger.error(e.reason)
         except UnicodeEncodeError as e:
@@ -123,13 +132,11 @@ class MyStreamListener(tweepy.StreamListener):
     def on_error(self, status):
         logger.info(f"Error detected {status}")
 
-
 def main(t_keyword, f_keyword):
     myStreamListener = MyStreamListener(api)
     myStream = tweepy.Stream(auth = api.auth, listener=myStreamListener)
     myStream.filter(track=t_keyword, follow=f_keyword, languages=["en", "am"], is_async=False)
     
-
 if __name__ == "__main__":
     string_pattern_to_track = ["EthiopianLivesMatter", "ItsMyDam", "ItsOurDam", "FillTheDam", "EthiopiaPrevails", "StandWithEthiopia",
                                "EthioEritreaPrevail", "SupportEthiopia", "UNSCsupportEthiopia", "UnityForEthiopia", "GleanEthiopia", "GetEthiopianFactsRight",
@@ -142,35 +149,6 @@ if __name__ == "__main__":
                 'BisratLKabeta','sofanit_t','BilleneSeyoum','AbiyAhmedAli','BlenDiriba','LanderMiddle',
                 'KelikoSmart',"Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia",
                 "NEBEthiopia","Betty_Moges"]
+
     followers_to_track = utils.get_influencer_ID(api,followList)
-    # ["4077439067",  # @neaminzeleke
-    #                       "1357188308242169856",  # @gleanethiopian
-    #                       "276370580",  # @dejene_2011
-    #                       "1345123740603047936",  # @unityforethio
-    #                       "2651039676", #@ETHinSweden embassy
-    #                       "1186304222402351104" , #@kassahungedlu
-    #                       "985121551434616833", #@BisratLKabeta
-    #                       "1279521349388644353", #@sofanit_t
-    #                       "707189905" , #BilleneSeyoum
-    #                       "1168167671151628290", #@AbiyAhmedAli
-    #                       "1246052515063480320", #@BlenDiriba
-    #                       "1278675004968878081", #@LanderMiddle
-    #                       "963535775571828737",  #@KelikoSmart 
-    #                       '''
-    #                         @Alaroosi871
-    #                         Jeff Pearce
-    #                         @jeffpropulsion
-    #                         Dagi.
-    #                         @engineerdagi
-    #                         NICOLA DEMARCO, JD (personal views/account)
-    #                         @NicolaADeMarco
-    #                         MFA EthiopiaFlag of Ethiopia
-    #                         @mfaethiopia
-    #                         National Election Board of Ethiopia- NEBE
-    #                         @NEBEthiopia  
-    #                         @Betty_Moges
-
-
-    #                       '''
-    #                       ]
     main(string_pattern_to_track, followers_to_track)
