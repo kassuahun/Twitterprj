@@ -2,7 +2,7 @@ import tweepy
 import time
 import sys
 from datetime import datetime
-from config import  create_api, create_api_List
+from config import create_api_List
 from limits import limits
 import random
 import os

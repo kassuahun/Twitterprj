@@ -10,7 +10,7 @@ import utils
 import logging
 import atexit
 
-api = create_api_test()
+api = create_api()
   
 # the ID of the user
 id = 1168167671151628290
@@ -46,10 +46,10 @@ for page in tweepy.Cursor(api.followers_ids, screen_name="AbiyAhmedAli").pages()
         except tweepy.TweepError as e:
             print(e.reason)
             continue
-        time.sleep(60)
+    time.sleep(60)
 
 print(len(ids)) 
-filewriter("deplomats.txt",ids)
 
+atexit.register(utils.exit_handler,potential_deplomats,"deplomats.txt")
 
 

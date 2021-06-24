@@ -15,6 +15,17 @@ logger = logging.getLogger()
 def increment(arg):
     return arg + 1
 
+def get_influencer_ID(api, account_names):
+    userIDlist = []
+    for acc_name in account_names:
+        try:
+            user = api.get_user(acc_name)
+            userIDlist.append(str(user.id))
+        except Exception as e:
+            print(e.reason)
+            continue
+    return userIDlist  
+
 
 def write_to_file(file_name, tweet):
     logger.info(f"Writing a tweet to {file_name}")
@@ -111,7 +122,7 @@ def is_retweeted_tweet(tweet):
     return False
 
 def exit_handler(lst, fname):
-    logger.info('My application is ending: writing the remaining list!')
+    logger.info('exit_handler: The application is ending: writing the remaining list!')
     with open(fname, 'w') as filetowrite:
         for itm in lst:
             filetowrite.write(itm)

@@ -11,27 +11,23 @@ import keys
 logger = logging.getLogger()
 
 
-# Home = environ['HOME']
-# CONSUMER_KEY = environ['CONSUMER_KEY']
-# CONSUMER_SECRET = environ['CONSUMER_SECRET']
-# ACCESS_KEY = environ['ACCESS_KEY']
-# ACCESS_SECRET = environ['ACCESS_SECRET']
-
-
-
-
-# def create_api():
-#     auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
-#     auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
-#     api = tweepy.API(auth, wait_on_rate_limit=True,
-#         wait_on_rate_limit_notify=True)
-#     try:
-#         api.verify_credentials()
-#     except Exception as e:
-#         logger.error("Error creating API", exc_info=True)
-#         raise e
-#     logger.info("API created")
-#     return api
+def create_api():
+    Home = environ['HOME']
+    CONSUMER_KEY = environ['CONSUMER_KEY']
+    CONSUMER_SECRET = environ['CONSUMER_SECRET']
+    ACCESS_KEY = environ['ACCESS_KEY']
+    ACCESS_SECRET = environ['ACCESS_SECRET']
+    auth = tweepy.OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
+    auth.set_access_token(ACCESS_KEY, ACCESS_SECRET)
+    api = tweepy.API(auth, wait_on_rate_limit=True,
+        wait_on_rate_limit_notify=True)
+    try:
+        api.verify_credentials()
+    except Exception as e:
+        logger.error("Error creating API", exc_info=True)
+        raise e
+    logger.info("API created")
+    return api
 
 def create_api_lical( consumer_name,
                 consumer_key, 
@@ -50,19 +46,19 @@ def create_api_lical( consumer_name,
     logger.info("API created for ", consumer_name )
     return api
 
-# def create_api_test():
-#     auth = tweepy.OAuthHandler(keys.consumer_key, keys.consumer_secret)
-#     auth.set_access_token(keys.access_token, keys.access_token_secret)
-#     api = tweepy.API(auth, wait_on_rate_limit=True,
-#         wait_on_rate_limit_notify=True)
-#     try:
-#         api.verify_credentials()
-#     except Exception as e:
-#         logger.error("Error creating API", exc_info=True)
-#         raise e
-#         return None
-#     logger.info("API created")
-#     return api
+def create_api_test():
+    auth = tweepy.OAuthHandler(keys.consumer_key, keys.consumer_secret)
+    auth.set_access_token(keys.access_token, keys.access_token_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True,
+        wait_on_rate_limit_notify=True)
+    try:
+        api.verify_credentials()
+    except Exception as e:
+        logger.error("Error creating API", exc_info=True)
+        raise e
+        return None
+    logger.info("API created")
+    return api
 
 def create_api_List():
     f_name_read = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'API_Keys.csv'
@@ -117,5 +113,10 @@ def create_api_List():
 #     return api_list
 
 
+
+
+
 # api_list = create_api_List()
-# api = create_api()
+# lst = ["Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia","NEBEthiopia","Betty_Moges"]
+# print(utils.get_influencer_ID(api_list[0], lst))
+# # api = create_api()
