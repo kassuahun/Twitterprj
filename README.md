@@ -55,6 +55,11 @@ $ pip install tweepy
 
 Set the enviroment variables
 Note: No space befor and after =
+@KnutAbjorn,
+export CONSUMER_KEY=SyeR6rZP5f07M3Dm0c2XJVpf3
+export CONSUMER_SECRET=Dw1R5U7gM77GNPxd9M06m3nAGll6lhf1tWrLgji8p5PWPuRwNc
+export ACCESS_KEY=1396510603863330816-dxCtka35EpFy9Nd58MQILEKc4PxcUy
+export ACCESS_SECRET=iMnwKfXM3lXDBICeppvX867I8neEoBLKjdDmmHvz9XYQY
 $ export CONSUMER_KEY=yourCONSUMER_KEY
 $ export CONSUMER_SECRET=yourCONSUMER_SECRET
 $ export ACCESS_KEY=yourACCESS_KEY

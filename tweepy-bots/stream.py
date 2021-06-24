@@ -148,7 +148,8 @@ if __name__ == "__main__":
     followList = ['neaminzeleke','gleanethiopian','dejene_2011','unityforethio','ETHinSweden','kassahungedlu',
                 'BisratLKabeta','sofanit_t','BilleneSeyoum','AbiyAhmedAli','BlenDiriba','LanderMiddle',
                 'KelikoSmart',"Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia",
-                "NEBEthiopia","Betty_Moges"]
+                "NEBEthiopia","Betty_Moges", "_HenokTeferra", "EthioAmbUK", "ALEMAYEHUTEGENU", "seleshi_b_a", 
+                "fitsumaregaa","NafyadWakjira", "BekeleWoyecha", "AlMariam1"]
 
     followers_to_track = utils.get_influencer_ID(api,followList)
     main(string_pattern_to_track, followers_to_track)
