@@ -7,7 +7,7 @@ def sendEmail(receiver_address, subject,mail_content):
     
     #The mail addresses and password
     sender_address = 'nordicadvocacyteam@gmail.com'
-    sender_pass = 'ENN+46se+47no'
+    sender_pass 
     #Setup the MIME
     message = MIMEMultipart()
     message['From'] = sender_address
