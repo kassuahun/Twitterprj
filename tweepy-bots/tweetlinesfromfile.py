@@ -36,39 +36,17 @@ toremove =[]
 
 def tweet_forall(txt):
     for api in apilist:
-        api.update_status(txt)
-        print(api.me().screen_name, "tweeted [", txt, "]")
-
-
-for line in f:
-    if my_Limits.tweetlimit():
-        if utils.tweet_exists(f_name_write, line):
-            continue
         try:
-            logger.info(f"Tweeting: {line}")
-            #create_api().update_status(line)
-            tweet_forall(line)
-            toremove.append(line)
-            my_Limits.update_today_tweet()
-            logger.info(f"Writing tweet {utils.increment(tweet_no)} to file")
-            tweet_no = tweet_no + 1
-            utils.write_to_file(f_name_write, line)
-            if i == tweet_bunch:
-                logger.info(f" waiting for {interval} minutes ...")
-                interval = random.randint(15,30)
-                time.sleep(interval*60)
-                i = 1
-            else:
-                internal_interval = random.randint(35,180)
-                time.sleep(internal_interval)
-            i += 1
+            api.update_status(txt)
+            print(api.me().screen_name, "tweeted [", txt, "]")
         except tweepy.TweepError as e:
             logger.error(e.reason)
             if e.api_code == 187 :
                 toremove.append(line)
                 continue
             elif e.api_code == 261:
-                break
+                apilist.remove(api)
+                continue
             elif e.api_code == 186: #[{'code': 186, 'message': 'Tweet needs to be a bit shorter.'}]
                 toremove.append(line)
                 continue
@@ -80,7 +58,34 @@ for line in f:
         except ConnectionResetError:
             logger.error("Error detected")
             pass
-    else: break
+
+
+for line in f:
+    if my_Limits.tweetlimit():
+        if utils.tweet_exists(f_name_write, line):
+            continue
+        
+        logger.info(f"Tweeting: {line}")
+        tweet_forall(line)
+        toremove.append(line)
+        my_Limits.update_today_tweet()
+        logger.info(f"Writing tweet {utils.increment(tweet_no)} to file")
+        tweet_no = tweet_no + 1
+        utils.write_to_file(f_name_write, line)
+        if i == tweet_bunch:
+            interval = random.randint(20,30)
+            logger.info(f" waiting for {interval} minutes ...")
+            time.sleep(interval*60)
+            i = 1
+        else:
+            internal_interval = random.randint(35,120)
+            logger.info(f" waiting for {internal_interval} seconds ...")
+            time.sleep(internal_interval)
+        i += 1
+        
+    else: 
+        logger.info("The dayly limit reached")
+        break
 print("The list is Done" )
 
 atexit.register(utils.exit_handler,[t for t in f if(t not in toremove)],f_name_read)
