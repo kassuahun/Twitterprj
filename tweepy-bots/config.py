@@ -43,7 +43,7 @@ def create_api_lical( consumer_name,
     except Exception as e:
         logger.error("Error creating API", exc_info=True)
         raise e
-    logger.info("API created for ", consumer_name )
+    logger.info(f"API created for {consumer_name}" )
     return api
 
 def create_api_test():

@@ -82,7 +82,7 @@ class MyStreamListener(tweepy.StreamListener):
                 my_limits.update_today_like()
 
             if  my_limits.followlimit() :
-                if (not tweet.user.following) and tweet.user.followers_count < 500:
+                if (not tweet.user.following) and tweet.user.followers_count < 150:
                     logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
                     tweet.user.follow()
                     for i in range(1,len(api_List)):
