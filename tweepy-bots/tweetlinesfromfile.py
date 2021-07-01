@@ -74,7 +74,8 @@ for line in f:
         utils.write_to_file(f_name_write, line)
         if i == tweet_bunch:
             interval = random.randint(20,30)
-            logger.info(f" waiting for {interval} minutes ...")
+            now = datetime.now()
+            logger.info(f" waiting for {interval} minutes ... Staring from {now.hour}:{now.minute}:{now.second}")
             time.sleep(interval*60)
             i = 1
         else:
