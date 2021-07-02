@@ -22,7 +22,7 @@ def get_influencer_ID(api, account_names):
             user = api.get_user(acc_name)
             userIDlist.append(str(user.id))
         except Exception as e:
-            print(e.reason)
+            logger.error(e.reason)
             continue
     return userIDlist  
 

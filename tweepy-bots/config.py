@@ -36,7 +36,7 @@ def create_api_lical( consumer_name,
                 access_token_secret ):
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
-    api = tweepy.API(auth, wait_on_rate_limit=True,
+    api = tweepy.API(auth, retry_count=5, retry_delay=0, retry_errors=[54], wait_on_rate_limit=True,
         wait_on_rate_limit_notify=True)
     try:
         api.verify_credentials()

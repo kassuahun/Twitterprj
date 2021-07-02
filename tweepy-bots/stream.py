@@ -3,6 +3,7 @@ import logging
 import time
 import datetime
 from config import create_api_List
+from sendemail import sendEmail
 import os
 import utils
 from timeit import default_timer as timer
@@ -35,7 +36,7 @@ class MyStreamListener(tweepy.StreamListener):
         self.start_time = timer()
         self.last_tweet_time = timer()
 
-        self.wait_minutes = 15
+        self.wait_minutes = 5
 
         logger.info(os.path.dirname(os.path.realpath(__file__)))
 
@@ -61,13 +62,21 @@ class MyStreamListener(tweepy.StreamListener):
         try:    
             #Limit
             if my_limits.tweetlimit():
-
-                tweet.retweet()
                 self.last_tweet_time = datetime.datetime.now()
-                logger.info(f"Tweet Retweeted by {api.get_user(self.me.id).screen_name}")
-                for i in range(1,len(api_List)):
-                    api_List[i].retweet(tweet.id)
-                    logger.info(f"Tweet Retweeted by {api.get_user(api_List[i].me().id).screen_name}")
+                
+                for i in range(0,len(api_List)):
+                    try:
+                        api_List[i].retweet(tweet.id)
+                        logger.info(f"Tweet Retweeted by {api.get_user(api_List[i].me().id).screen_name}")
+                    except tweepy.TweepError as e:
+                        if e.api_code == 261:
+                            apilist.remove(api)
+                            to ="kassuahun@gmail.com"
+                            subject = api.get_user(api_List[i].me().id).screen_name + " can't retweet"
+                            mail_content = api.get_user(api_List[i].me().id).screen_name + " can't retweet because of an error occurs." + e.reason
+                            sendEmail(to, subject, mail_content)
+                            continue
+
                 my_limits.update_today_tweet()
                 tweet_number = utils.increment(self.nr_tweets)
                 logger.info(tweet.id)
@@ -82,29 +91,46 @@ class MyStreamListener(tweepy.StreamListener):
                 my_limits.update_today_like()
 
             if  my_limits.followlimit() :
-                if (not tweet.user.following) and tweet.user.followers_count < 150:
-                    logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
-                    tweet.user.follow()
-                    for i in range(1,len(api_List)):
-                        frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
-                        isfr = frendship[0].is_following
-                        if (not isfr) and (tweet.user.followers_count < 150):
-                            api_List[i].create_friendship(tweet.user.id)
+                if (not tweet.user.following) and tweet.user.followers_count < 500:
+                    for i in range(0,len(api_List)):
+                        try:
+                            frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                            isfr = frendship[0].is_following
+                            if (not isfr) and (tweet.user.followers_count < 500):
+                                api_List[i].create_friendship(tweet.user.id)
+                                logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
+                        except tweepy.TweepError as e:
+                            if e.api_code == 261:
+                                apilist.remove(api)
+                                to ="kassuahun@gmail.com"
+                                subject = api.get_user(api_List[i].me().id).screen_name + " can't follow a user"
+                                mail_content = api.get_user(api_List[i].me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
+                                sendEmail(to, subject, mail_content)
+                                continue
+                    
                     utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
                     logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
                     my_limits.update_today_follow()
                     logger.info(f'Update Follow limit ')
 
                 if utils.is_retweeted_tweet(tweet) and (not tweet.retweeted_status.user.following) and tweet.retweeted_status.user.followers_count < 150:
-                    tweet.retweeted_status.user.follow()
-                    logger.info(f'Followed user {tweet.retweeted_status.user.name.encode("utf-8")}')
                     
-                    for i in range(1,len(api_List)):
-                        frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
-                        isfr = frendship[0].is_following
-                        if (not isfr) and tweet.retweeted_status.user.id < 150:
-                            api_List[i].create_friendship(tweet.retweeted_status.user.id)
-                    
+                    for i in range(0,len(api_List)):
+                        try:
+                            frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                            isfr = frendship[0].is_following
+                            if (not isfr) and (tweet.retweeted_status.user.followers_count < 500):
+                                api_List[i].create_friendship(tweet.retweeted_status.user.id)
+                                logger.info(f'Followed user {tweet.retweeted_status.user.name.encode("utf-8")}')
+                        except tweepy.TweepError as e:
+                            if e.api_code == 261:
+                                apilist.remove(api)
+                                to ="kassuahun@gmail.com"
+                                subject = api.get_user(api_List[i].me().id).screen_name + " can't follow a user"
+                                mail_content = api.get_user(api_List[i].me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
+                                sendEmail(to, subject, mail_content)
+                                continue
+
                     utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
                     logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
                     self.follow_counter = self.follow_counter + 1
@@ -122,6 +148,7 @@ class MyStreamListener(tweepy.StreamListener):
                 time.sleep((self.wait_minutes * 60) - timediff)
         except tweepy.TweepError as e:
             logger.error(e.reason)
+            
         except UnicodeEncodeError as e:
             logger.error(e.reason)
             pass

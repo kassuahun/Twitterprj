@@ -19,7 +19,7 @@ msg['To'] = 'kassuahun@gmail.com'
 session = smtplib.SMTP('smtp.gmail.com', 587)
 session.starttls()
 sender_address = 'nordicadvocacyteam@gmail.com'
-sender_pass 
+sender_pass = "ENN+46se+47no"
 session.login(sender_address, sender_pass)
 
 session.send_message(msg)

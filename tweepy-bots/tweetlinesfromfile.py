@@ -41,7 +41,7 @@ def tweet_forall(txt):
             print(api.me().screen_name, "tweeted [", txt, "]")
         except tweepy.TweepError as e:
             logger.error(e.reason)
-            if e.api_code == 187 :
+            if e.api_code == 187 : # 'Status is a duplicate. '
                 toremove.append(line)
                 continue
             elif e.api_code == 261:
