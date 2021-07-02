@@ -24,11 +24,11 @@ def sendEmail(receiver_address, subject,mail_content):
     session.quit()
     return 'Mail Sent ' + to + " " + str(datetime.datetime.now().strftime("%c"))
 
-to = 'kassuahun@gmail.com'
-subject= "test as a function"
+# to = 'kassuahun@gmail.com'
+# subject= "test as a function"
 
-mail_content = '''Hello, this is test with func.
-    This is a simple mail. There is only text, no attachments are there The mail is sent using Python SMTP library.
-    Thank You
-    '''
-print(sendEmail(to, subject, mail_content))
+# mail_content = '''Hello, this is test with func.
+#     This is a simple mail. There is only text, no attachments are there The mail is sent using Python SMTP library.
+#     Thank You
+#     '''
+# print(sendEmail(to, subject, mail_content))
