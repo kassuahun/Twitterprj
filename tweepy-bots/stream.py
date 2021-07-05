@@ -57,17 +57,22 @@ class MyStreamListener(tweepy.StreamListener):
         return False
 
     def on_status(self, tweet):
+        
         if utils.is_Invalid_tweet(tweet, self.latest_tweet_id, self.me.id, self.file_name):
             return
         try:    
             #Limit
+            holds = 0
             if my_limits.tweetlimit():
                 self.last_tweet_time = datetime.datetime.now()
                 
                 for i in range(0,len(api_List)):
                     try:
                         api_List[i].retweet(tweet.id)
-                        logger.info(f"Tweet Retweeted by {api.get_user(api_List[i].me().id).screen_name}")
+                        hold=random.uniform(0.3,0.8)*60
+                        logger.info(f"Tweet Retweeted by {api.get_user(api_List[i].me().id).screen_name} and holds {hold}")
+                        time.sleep(hold)
+                        holds = holds+hold
                     except tweepy.TweepError as e:
                         if e.api_code == 261:
                             apilist.remove(api)
@@ -99,6 +104,12 @@ class MyStreamListener(tweepy.StreamListener):
                             if (not isfr) and (tweet.user.followers_count < 500):
                                 api_List[i].create_friendship(tweet.user.id)
                                 logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
+
+                                utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
+                                logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
+                                my_limits.update_today_follow()
+                                logger.info(f'Update Follow limit ')
+
                         except tweepy.TweepError as e:
                             if e.api_code == 261:
                                 apilist.remove(api)
@@ -108,10 +119,7 @@ class MyStreamListener(tweepy.StreamListener):
                                 sendEmail(to, subject, mail_content)
                                 continue
                     
-                    utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
-                    logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
-                    my_limits.update_today_follow()
-                    logger.info(f'Update Follow limit ')
+                    
 
                 if utils.is_retweeted_tweet(tweet) and (not tweet.retweeted_status.user.following) and tweet.retweeted_status.user.followers_count < 150:
                     
@@ -122,6 +130,12 @@ class MyStreamListener(tweepy.StreamListener):
                             if (not isfr) and (tweet.retweeted_status.user.followers_count < 500):
                                 api_List[i].create_friendship(tweet.retweeted_status.user.id)
                                 logger.info(f'Followed user {tweet.retweeted_status.user.name.encode("utf-8")}')
+
+                                utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
+                                logger.info(f'Write on newfollowings file user {tweet.retweeted_status.user.name.encode("utf-8")}')
+                                my_limits.update_today_follow()
+                                logger.info(f'Update Follow limit ')
+
                         except tweepy.TweepError as e:
                             if e.api_code == 261:
                                 apilist.remove(api)
@@ -131,12 +145,6 @@ class MyStreamListener(tweepy.StreamListener):
                                 sendEmail(to, subject, mail_content)
                                 continue
 
-                    utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
-                    logger.info(f'Write on newfollowings file user {tweet.user.name.encode("utf-8")}')
-                    self.follow_counter = self.follow_counter + 1
-                    my_limits.update_today_follow()
-                    logger.info(f'Update Follow limit ')
-
             self.reset_limit_counters()
             self.set_tweet_id(tweet.id)
             
@@ -144,8 +152,8 @@ class MyStreamListener(tweepy.StreamListener):
             logger.info(f"Time since last tweet = {timediff}")
 
             logger.info(f"Waiting for {self.wait_minutes-timediff} minutes ...")
-            if timediff < self.wait_minutes:
-                time.sleep((self.wait_minutes * 60) - timediff)
+            if (timediff + holds) < self.wait_minutes:
+                time.sleep((self.wait_minutes * 60) - (holds + timediff))
         except tweepy.TweepError as e:
             logger.error(e.reason)
             
@@ -166,17 +174,19 @@ def main(t_keyword, f_keyword):
     
 if __name__ == "__main__":
     string_pattern_to_track = ["EthiopianLivesMatter", "ItsMyDam", "ItsOurDam", "FillTheDam", "EthiopiaPrevails", "StandWithEthiopia",
-                               "EthioEritreaPrevail", "SupportEthiopia", "UNSCsupportEthiopia", "UnityForEthiopia", "GleanEthiopia", "GetEthiopianFactsRight",
-                               "TplfLies", "FakeAxumMassacre", "DeliverTheAid", "TPLFisaTerroristGroup",
+                               "EthioEritreaPrevail", "SupportEthiopia", "UNSCsupportEthiopia", "UnityForEthiopia", "GleanEthiopia", 
+                               "GetEthiopianFactsRight","TplfLies", "FakeAxumMassacre", "DeliverTheAid", "TPLFisaTerroristGroup",
                                "TPLFisTheCause", "TPLFCrimes", "TPLFcrimes", "MaiKadraMassacre", "AxumFiction",
-                               "TPLF_Junta", "DisarmTPLF", "StopScapegoatingEritrea",
-                               "RisingEthiopia", "TPLFisDEAD", "EthiopiaPrevails", "EritreaPrevails"] # EthiopianLivesMatter AbiyMustLead
+                               "TPLF_Junta", "DisarmTPLF", "StopScapegoatingEritrea","RisingEthiopia", "TPLFisDEAD", "#EthiopiaPrevails", 
+                               "EthiopiaPrevail", "#EritreaPrevails", "#IrobMassacre", "#EthiopianLivesMatter"] # EthiopianLivesMatter AbiyMustLead
 
     followList = ['neaminzeleke','gleanethiopian','dejene_2011','unityforethio','ETHinSweden','kassahungedlu',
                 'BisratLKabeta','sofanit_t','BilleneSeyoum','AbiyAhmedAli','BlenDiriba','LanderMiddle',
                 'KelikoSmart',"Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia",
                 "NEBEthiopia","Betty_Moges", "_HenokTeferra", "EthioAmbUK", "ALEMAYEHUTEGENU", "seleshi_b_a", 
-                "fitsumaregaa","NafyadWakjira", "BekeleWoyecha", "AlMariam1", "GetachewDejene4"]
+                "fitsumaregaa","NafyadWakjira", "BekeleWoyecha", "AlMariam1", "GetachewDejene4",
+                "StavangerT","bergenT","KnutAsbj","Ethio_Norwagian","nordic_advocacy","KnutAbjorn","Eth_In_Nordic",
+                "kassahun_gedlu","nigmit","nigmitdan"]
 
     followers_to_track = utils.get_influencer_ID(api,followList)
     main(string_pattern_to_track, followers_to_track)

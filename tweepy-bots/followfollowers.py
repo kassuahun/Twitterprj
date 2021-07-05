@@ -3,13 +3,21 @@
 
 import tweepy
 import logging
-from config import create_api
+from config import create_api_List
 import os
 import time
 import utils
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
+
+api_list= create_api_List()
+
+def followback(api_list):
+    for api in api_list:
+        follow_followers(api)
+
+
 
 def follow_followers(api):
     logger.info("Retrieving and following followers")
