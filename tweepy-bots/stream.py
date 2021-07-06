@@ -180,13 +180,13 @@ if __name__ == "__main__":
                                "TPLF_Junta", "DisarmTPLF", "StopScapegoatingEritrea","RisingEthiopia", "TPLFisDEAD", "#EthiopiaPrevails", 
                                "EthiopiaPrevail", "#EritreaPrevails", "#IrobMassacre", "#EthiopianLivesMatter"] # EthiopianLivesMatter AbiyMustLead
 
-    followList = ['neaminzeleke','gleanethiopian','dejene_2011','unityforethio','ETHinSweden','kassahungedlu',
+    followList = ['neaminzeleke','GleanEthiopia','dejene_2011','unityforethio','ETHinSweden','kassahungedlu',
                 'BisratLKabeta','sofanit_t','BilleneSeyoum','AbiyAhmedAli','BlenDiriba','LanderMiddle',
                 'KelikoSmart',"Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia",
                 "NEBEthiopia","Betty_Moges", "_HenokTeferra", "EthioAmbUK", "ALEMAYEHUTEGENU", "seleshi_b_a", 
                 "fitsumaregaa","NafyadWakjira", "BekeleWoyecha", "AlMariam1", "GetachewDejene4",
                 "StavangerT","bergenT","KnutAsbj","Ethio_Norwagian","nordic_advocacy","KnutAbjorn","Eth_In_Nordic",
-                "kassahun_gedlu","nigmit","nigmitdan"]
+                "kassahun_gedlu","nigmit","nigmitdan","EthiopiansInSP", "EthiopiansSpain", "DefendEthSpain","NEGATgeneva","tare_aw","ethiopiansinfr","DefendEthiopiaFrance"]
 
     followers_to_track = utils.get_influencer_ID(api,followList)
     main(string_pattern_to_track, followers_to_track)
