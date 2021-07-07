@@ -60,8 +60,9 @@ def create_api_test():
     logger.info("API created")
     return api
 
-def create_api_List():
-    f_name_read = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'API_Keys.csv'
+def create_api_List(fname):
+    f_name_read = os.path.dirname(os.path.realpath(__file__)) + os.sep + fname
+    logger.info(f"Creating API from {fname} ")
     with open(f_name_read) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 1
@@ -111,10 +112,6 @@ def create_api_List():
 #                     print(f'Processed {line_count} lines.')
 
 #     return api_list
-
-
-
-
 
 # api_list = create_api_List()
 # lst = ["Alaroosi871","jeffpropulsion","engineerdagi","NicolaADeMarco","mfaethiopia","NEBEthiopia","Betty_Moges"]

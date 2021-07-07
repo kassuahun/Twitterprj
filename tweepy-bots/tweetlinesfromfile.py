@@ -13,15 +13,7 @@ import atexit
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-# create a text file with each line containing a sentence you want to tweet
-#To run the bot do the following from command line:
-#python tweetlinesfromfile.py
-
-# == OAuth Authentication ==
-# api = create_api()
-# api = create_api_list()
-
-apilist = create_api_List()
+apilist = create_api_List("API_Key_campain.csv")
 
 f_name_read = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'campaign_tweets.txt'
 f_name_write = os.path.dirname(os.path.realpath(__file__)) + os.sep + 'streamed_tweets.txt'
@@ -44,13 +36,12 @@ def tweet_forall(txt):
             if e.api_code == 187 : # 'Status is a duplicate. '
                 toremove.append(line)
                 continue
-            elif e.api_code == 261:
+            elif e.api_code in [261, 326]:
                 apilist.remove(api)
                 continue
             elif e.api_code == 186: #[{'code': 186, 'message': 'Tweet needs to be a bit shorter.'}]
                 toremove.append(line)
-                continue
-            
+                continue     
         except UnicodeEncodeError as e:
             logger.error(e.reason)
             toremove.append(line)
@@ -59,12 +50,10 @@ def tweet_forall(txt):
             logger.error("Error detected")
             pass
 
-
 for line in f:
     if my_Limits.tweetlimit():
         if utils.tweet_exists(f_name_write, line):
             continue
-        
         logger.info(f"Tweeting: {line}")
         tweet_forall(line)
         toremove.append(line)
@@ -79,11 +68,10 @@ for line in f:
             time.sleep(interval*60)
             i = 1
         else:
-            internal_interval = random.randint(35,120)
+            internal_interval = random.randint(45,180)
             logger.info(f" waiting for {internal_interval} seconds ...")
             time.sleep(internal_interval)
         i += 1
-        
     else: 
         logger.info("The dayly limit reached")
         break
