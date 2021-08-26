@@ -22,7 +22,7 @@ tweet_no = 0
 f = utils.read_from_file(f_name_read)
 interval = 15
 internal_interval = 0.5
-tweet_bunch = 10
+tweet_bunch = random.randint(5,12)
 i = 1
 toremove =[]
 
@@ -67,10 +67,11 @@ for line in f:
             logger.info(f" waiting for {interval} minutes ... Staring from {now.hour}:{now.minute}:{now.second}")
             time.sleep(interval*60)
             i = 1
+            tweet_bunch = random.randint(5,12)
         else:
             internal_interval = random.randint(45,180)
             logger.info(f" waiting for {internal_interval} seconds ...")
-            time.sleep(internal_interval)
+            time.sleep(internal_interval) 
         i += 1
     else: 
         logger.info("The dayly limit reached")

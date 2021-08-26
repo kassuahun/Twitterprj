@@ -20,9 +20,7 @@ followList= []
 api_List = create_api_List("API_Keys.csv")
 api=api_List[0]
 
-
 class MyStreamListener(tweepy.StreamListener):
-
     def __init__(self, api, nr_tweets=0, latest_tweet_id=1407144449940021250,
                  file_name=os.path.dirname(os.path.realpath(__file__)) + os.sep + "streamed_tweets.txt",
                  follow_counter=0
@@ -35,13 +33,19 @@ class MyStreamListener(tweepy.StreamListener):
         self.follow_counter = follow_counter
         self.start_time = timer()
         self.last_tweet_time = timer()
-
         self.wait_minutes = 5
 
         logger.info(os.path.dirname(os.path.realpath(__file__)))
 
     def set_tweet_id(self, tweet_id):
         self.latest_tweet_id = tweet_id
+    
+    def emailto(screenname, code, reason):
+        to ="kassuahun@gmail.com"
+        #txt= str(api.get_user(temp_api.me().id).screen_name )
+        subject =  screenname + " can't retweet"
+        mail_content = screenname + " can't retweet because of an error occurs.\n" + code + "\n " + reason
+        sendEmail(to, subject, mail_content)
 
     def reset_limit_counters(self):
         elapsed_time = timer() - self.start_time # Elapse time in seconds
@@ -57,7 +61,6 @@ class MyStreamListener(tweepy.StreamListener):
         return False
 
     def on_status(self, tweet):
-        
         if utils.is_Invalid_tweet(tweet, self.latest_tweet_id, self.me.id, self.file_name):
             return
         try:    
@@ -65,22 +68,21 @@ class MyStreamListener(tweepy.StreamListener):
             holds = 0
             if my_limits.tweetlimit():
                 self.last_tweet_time = datetime.datetime.now()
-                
-                for i in range(0,len(api_List)):
+                for temp_api in api_List:
                     try:
-                        api_List[i].retweet(tweet.id)
-                        hold=random.uniform(0.3,0.8)*60
-                        logger.info(f"Tweet Retweeted by {api.get_user(api_List[i].me().id).screen_name} and holds {hold}")
+                        temp_api.retweet(tweet.id)
+                        #hold=random.uniform(0.3,0.8)*60
+                        hold=0
+                        logger.info(f"Tweet Retweeted by {api.get_user(temp_api.me().id).screen_name} and holds {hold}")
                         time.sleep(hold)
                         holds = holds+hold
                     except tweepy.TweepError as e:
-                        if e.api_code == 261:
-                            apilist.remove(api)
-                            to ="kassuahun@gmail.com"
-                            subject = api.get_user(api_List[i].me().id).screen_name + " can't retweet"
-                            mail_content = api.get_user(api_List[i].me().id).screen_name + " can't retweet because of an error occurs." + e.reason
-                            sendEmail(to, subject, mail_content)
+                        if e.api_code in [261, 326]:
+                            self.emailto(api.get_user(temp_api.me().id).screen_name , e.api_code, e.reason)
+                            api_List.remove(temp_api)
                             continue
+                        elif e.api_code in [327]:
+                            logger.info(f"Error: Retweeted early {api.get_user(temp_api.me().id).screen_name} and holds")
 
                 my_limits.update_today_tweet()
                 tweet_number = utils.increment(self.nr_tweets)
@@ -97,12 +99,12 @@ class MyStreamListener(tweepy.StreamListener):
 
             if  my_limits.followlimit() :
                 if (not tweet.user.following) and tweet.user.followers_count < 500:
-                    for i in range(0,len(api_List)):
+                    for temp_api in api_List:
                         try:
-                            frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                            frendship= temp_api.lookup_friendships(user_ids = [tweet.user.id])
                             isfr = frendship[0].is_following
                             if (not isfr) and (tweet.user.followers_count < 500):
-                                api_List[i].create_friendship(tweet.user.id)
+                                temp_api.create_friendship(tweet.user.id)
                                 logger.info(f'Follow user {tweet.user.name.encode("utf-8")}')
 
                                 utils.write_to_followerfile(f_name_following,tweet.user.screen_name)
@@ -112,23 +114,21 @@ class MyStreamListener(tweepy.StreamListener):
 
                         except tweepy.TweepError as e:
                             if e.api_code == 261:
-                                apilist.remove(api)
+                                apilist.remove(temp_api)
                                 to ="kassuahun@gmail.com"
-                                subject = api.get_user(api_List[i].me().id).screen_name + " can't follow a user"
-                                mail_content = api.get_user(api_List[i].me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
+                                subject = api.get_user(temp_api.me().id).screen_name + " can't follow a user"
+                                mail_content = api.get_user(temp_api.me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
                                 sendEmail(to, subject, mail_content)
                                 continue
                     
-                    
-
                 if utils.is_retweeted_tweet(tweet) and (not tweet.retweeted_status.user.following) and tweet.retweeted_status.user.followers_count < 150:
                     
-                    for i in range(0,len(api_List)):
+                    for temp_api in api_List:
                         try:
-                            frendship= api_List[i].lookup_friendships(user_ids = [tweet.user.id])
+                            frendship= temp_api.lookup_friendships(user_ids = [tweet.user.id])
                             isfr = frendship[0].is_following
                             if (not isfr) and (tweet.retweeted_status.user.followers_count < 500):
-                                api_List[i].create_friendship(tweet.retweeted_status.user.id)
+                                temp_api.create_friendship(tweet.retweeted_status.user.id)
                                 logger.info(f'Followed user {tweet.retweeted_status.user.name.encode("utf-8")}')
 
                                 utils.write_to_followerfile(f_name_following,tweet.retweeted_status.user.screen_name)
@@ -138,10 +138,10 @@ class MyStreamListener(tweepy.StreamListener):
 
                         except tweepy.TweepError as e:
                             if e.api_code == 261:
-                                apilist.remove(api)
+                                apilist.remove(temp_api)
                                 to ="kassuahun@gmail.com"
-                                subject = api.get_user(api_List[i].me().id).screen_name + " can't follow a user"
-                                mail_content = api.get_user(api_List[i].me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
+                                subject = api.get_user(temp_api.me().id).screen_name + " can't follow a user"
+                                mail_content = api.get_user(temp_api.me().id).screen_name + " can't follow a user because of an error occurs." + e.reason
                                 sendEmail(to, subject, mail_content)
                                 continue
 
@@ -154,8 +154,6 @@ class MyStreamListener(tweepy.StreamListener):
             logger.info(f"Waiting for {self.wait_minutes-timediff} minutes ...")
             if (timediff + holds) < self.wait_minutes:
                 time.sleep((self.wait_minutes * 60) - (holds + timediff))
-        except tweepy.TweepError as e:
-            logger.error(e.reason)
             
         except UnicodeEncodeError as e:
             logger.error(e.reason)
@@ -177,8 +175,9 @@ if __name__ == "__main__":
                                "EthioEritreaPrevail", "SupportEthiopia", "UNSCsupportEthiopia", "UnityForEthiopia", "GleanEthiopia", 
                                "GetEthiopianFactsRight","TplfLies", "FakeAxumMassacre", "DeliverTheAid", "TPLFisaTerroristGroup",
                                "TPLFisTheCause", "TPLFCrimes", "TPLFcrimes", "MaiKadraMassacre", "AxumFiction",
-                               "TPLF_Junta", "DisarmTPLF", "StopScapegoatingEritrea","RisingEthiopia", "TPLFisDEAD", "#EthiopiaPrevails", 
-                               "EthiopiaPrevail", "#EritreaPrevails", "#IrobMassacre", "#EthiopianLivesMatter"] # EthiopianLivesMatter AbiyMustLead
+                               "TPLF_Junta", "DisarmTPLF", "StopScapegoatingEritrea","RisingEthiopia", "TPLFisDEAD", "EthiopiaPrevails", 
+                               "EthiopiaPrevail", "#EritreaPrevails", "#IrobMassacre", "#EthiopianLivesMatter", 
+                               "StopWeaponizingAid", "HypocriteLinda","AtrocitiesByTPLF", "NoNegotiationWithTPLF","ChildSoldiers"]
 
     followList = ['neaminzeleke','GleanEthiopia','dejene_2011','unityforethio','ETHinSweden','kassahungedlu',
                 'BisratLKabeta','sofanit_t','BilleneSeyoum','AbiyAhmedAli','BlenDiriba','LanderMiddle',
@@ -186,7 +185,8 @@ if __name__ == "__main__":
                 "NEBEthiopia","Betty_Moges", "_HenokTeferra", "EthioAmbUK", "ALEMAYEHUTEGENU", "seleshi_b_a", 
                 "fitsumaregaa","NafyadWakjira", "BekeleWoyecha", "AlMariam1", "GetachewDejene4",
                 "StavangerT","bergenT","KnutAsbj","Ethio_Norwagian","nordic_advocacy","KnutAbjorn","Eth_In_Nordic",
-                "kassahun_gedlu","nigmit","nigmitdan","EthiopiansInSP", "EthiopiansSpain", "DefendEthSpain","NEGATgeneva","tare_aw","ethiopiansinfr","DefendEthiopiaFrance"]
+                "kassahun_gedlu","nigmit","nigmitdan","EthiopiansInSP", "EthiopiansSpain", "DefendEthSpain",
+                "NEGATgeneva","tare_aw","ethiopiansinfr","DefendEthiopiaFrance"]
 
     followers_to_track = utils.get_influencer_ID(api,followList)
     main(string_pattern_to_track, followers_to_track)

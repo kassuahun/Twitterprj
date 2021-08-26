@@ -93,20 +93,39 @@ def tweet_exists(file_name, tweet):
 
 def is_Invalid_tweet(tweet, latest_tweet_id, me_id, file_name):
     logger.info('Checking if tweet is valid ')
+    invalid_lst = ["TigrayGenocide",
+            "TigrayMassArrest",
+            "TigrayFamine", 
+            "tembienMassacre",
+            "dengelatMassacre", 
+            "KunamaStarvation",
+            "AbiyToICC",
+            "IrobMassacre",
+            "TigrayGenocide",
+            "TigrayCantWait",
+            "StandWithTigray",
+            "WarOnTigray",
+            "AllowAccessToTigray",
+            "TigrayMassArrest",
+            "TigrayFamine",
+            "TigrayIsPrevailing", 
+            "TigrayGenocide",
+            "SiyadArts",
+            "TigrayMassArrest",
+            "TigrayEthnicCleansing",
+            "TigrayMassStarvation", 
+            "TigrayMassBlackout",
+            "TigrayCantWait",
+            "StopWarOnTigray",
+            "ChildrenOfTigray" ] 
+    for key in invalid_lst:
+        if key in str(tweet):
+            logger.info('The tweet is not valid')
+            return True
+
     if tweet_exists(file_name, tweet.text) or\
             tweet.user.id == me_id or\
-            tweet.in_reply_to_status_id is not None or\
-            "quoted_status" in str(tweet) or\
-            "AbiyToICC" in str(tweet) or\
-            "IrobMassacre" in str(tweet) or\
-            "#tembienMassacre #dengelatMassacre #KunamaStarvation " in str(tweet) or\
-            "TigrayGenocide" in str(tweet) or\
-            "TigrayCantWait" in str(tweet) or\
-            "WarOnTigray" in str(tweet) or\
-            "StandWithTigray" in str(tweet) or\
-            "AbiyToICC" in str(tweet) or\
-            tweet.id < latest_tweet_id:
-            #tweet.retweeted:
+            tweet.in_reply_to_status_id is not None or tweet.id < latest_tweet_id:
         logger.info('The tweet is not valid')
         return True
     logger.info('The tweet is valid')
